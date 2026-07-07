@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TechStore — AI Support</title>
+  <style>
+    /* ── Reset & Base ────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── Layout ──────────────────────────────────────────────────── */
+    .page-wrapper {
+      width: 100%;
+      max-width: 780px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      gap: 16px;
+    }
+
+    /* ── Header ──────────────────────────────────────────────────── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #1a1d27;
+      border: 1px solid #2d3148;
+      border-radius: 16px;
+      padding: 16px 20px;
+    }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .bot-avatar {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+    .bot-name { font-size: 17px; font-weight: 600; color: #f1f5f9; }
+    .bot-subtitle { font-size: 12px; color: #64748b; margin-top: 2px; }
+
+    .status-pill {
+      display: flex; align-items: center; gap: 6px;
+      background: #0d2218; border: 1px solid #14532d;
+      border-radius: 20px; padding: 5px 12px;
+      font-size: 12px; color: #4ade80;
+    }
+    .status-dot {
+      width: 7px; height: 7px; background: #4ade80;
+      border-radius: 50%; animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* ── Suggested Questions ─────────────────────────────────────── */
+    .suggestions-wrapper { flex-shrink: 0; }
+    .suggestions-label {
+      font-size: 11px; color: #475569; text-transform: uppercase;
+      letter-spacing: 0.08em; margin-bottom: 8px;
+    }
+    .suggestions {
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .suggestion-chip {
+      background: #1a1d27; border: 1px solid #2d3148;
+      border-radius: 20px; padding: 6px 14px;
+      font-size: 12.5px; color: #94a3b8; cursor: pointer;
+      transition: all 0.2s; white-space: nowrap;
+    }
+    .suggestion-chip:hover {
+      background: #252840; border-color: #6366f1; color: #a5b4fc;
+    }
+
+    /* ── Chat Window ─────────────────────────────────────────────── */
+    .chat-window {
+      flex: 1;
+      background: #1a1d27;
+      border: 1px solid #2d3148;
+      border-radius: 16px;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-height: 0;
+    }
+
+    /* scrollbar */
+    .chat-window::-webkit-scrollbar { width: 5px; }
+    .chat-window::-webkit-scrollbar-track { background: transparent; }
+    .chat-window::-webkit-scrollbar-thumb { background: #2d3148; border-radius: 10px; }
+
+    /* ── Welcome message ─────────────────────────────────────────── */
+    .welcome {
+      text-align: center;
+      padding: 30px 20px;
+      color: #475569;
+    }
+    .welcome-icon { font-size: 42px; margin-bottom: 12px; }
+    .welcome h2 { font-size: 18px; color: #94a3b8; margin-bottom: 6px; }
+    .welcome p  { font-size: 13px; line-height: 1.6; }
+
+    /* ── Messages ────────────────────────────────────────────────── */
+    .message-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      animation: fadeUp 0.25s ease;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .message-row.user  { flex-direction: row-reverse; }
+    .message-row.bot   { flex-direction: row; }
+
+    .avatar {
+      width: 32px; height: 32px; border-radius: 10px;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+    }
+    .avatar.bot  { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+    .avatar.user { background: #1e293b; border: 1px solid #334155; }
+
+    .bubble {
+      max-width: 72%;
+      padding: 11px 15px;
+      border-radius: 14px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .bubble.user {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+    .bubble.bot {
+      background: #252840;
+      color: #e2e8f0;
+      border-bottom-left-radius: 4px;
+      border: 1px solid #2d3148;
+    }
+    .bubble .time {
+      font-size: 10px; color: rgba(255,255,255,0.4);
+      margin-top: 5px; text-align: right;
+    }
+    .bubble.bot .time { color: #475569; text-align: left; }
+
+    /* ── Typing indicator ────────────────────────────────────────── */
+    .typing-indicator { display: flex; gap: 4px; padding: 4px 2px; align-items: center; }
+    .typing-indicator span {
+      width: 7px; height: 7px;
+      background: #6366f1; border-radius: 50%;
+      animation: bounce 1.2s infinite;
+    }
+    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%,80%,100% { transform: translateY(0); opacity:0.5; }
+      40% { transform: translateY(-6px); opacity:1; }
+    }
+
+    /* ── Input Bar ───────────────────────────────────────────────── */
+    .input-bar {
+      background: #1a1d27;
+      border: 1px solid #2d3148;
+      border-radius: 16px;
+      padding: 12px 12px 12px 16px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      flex-shrink: 0;
+    }
+    .input-bar textarea {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #e2e8f0;
+      font-size: 14px;
+      font-family: inherit;
+      resize: none;
+      line-height: 1.5;
+      max-height: 100px;
+      min-height: 22px;
+    }
+    .input-bar textarea::placeholder { color: #475569; }
+
+    .btn-send {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      border: none; border-radius: 12px;
+      color: white; font-size: 16px;
+      cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+    .btn-send:hover  { transform: scale(1.05); }
+    .btn-send:active { transform: scale(0.96); }
+    .btn-send:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    .btn-clear {
+      background: transparent;
+      border: 1px solid #2d3148;
+      border-radius: 10px;
+      color: #64748b;
+      font-size: 12px;
+      padding: 6px 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .btn-clear:hover { border-color: #ef4444; color: #ef4444; }
+
+    /* ── Stats bar at the bottom ─────────────────────────────────── */
+    .stats-bar {
+      display: flex; gap: 16px; justify-content: center;
+      font-size: 11px; color: #334155;
+      flex-shrink: 0;
+    }
+    .stats-bar span { display: flex; align-items: center; gap: 4px; }
+  </style>
+</head>
+<body>
+
+<div class="page-wrapper">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <div class="bot-avatar">🤖</div>
+      <div>
+        <div class="bot-name">TechStore Support</div>
+        <div class="bot-subtitle">AI Assistant — powered by GPT-4o + RAG</div>
+      </div>
+    </div>
+    <div class="status-pill">
+      <div class="status-dot"></div>
+      Online
+    </div>
+  </div>
+
+  <!-- Suggested questions -->
+  <div class="suggestions-wrapper">
+    <div class="suggestions-label">Quick questions</div>
+    <div class="suggestions">
+      <div class="suggestion-chip" onclick="sendSuggestion(this)">📦 What is your return policy?</div>
+      <div class="suggestion-chip" onclick="sendSuggestion(this)">🚚 How long does shipping take?</div>
+      <div class="suggestion-chip" onclick="sendSuggestion(this)">💳 What payment methods do you accept?</div>
+      <div class="suggestion-chip" onclick="sendSuggestion(this)">🔧 How do I claim a warranty?</div>
+      <div class="suggestion-chip" onclick="sendSuggestion(this)">🔑 How do I reset my password?</div>
+    </div>
+  </div>
+
+  <!-- Chat window -->
+  <div class="chat-window" id="chatWindow">
+    <div class="welcome" id="welcomeMsg">
+      <div class="welcome-icon">👋</div>
+      <h2>Hi! I'm your TechStore Support Assistant</h2>
+      <p>Ask me anything about orders, shipping, returns, payments, or your account.<br>I'll find the right answer from our knowledge base.</p>
+    </div>
+  </div>
+
+  <!-- Input bar -->
+  <div class="input-bar">
+    <textarea
+      id="userInput"
+      placeholder="Type your question here..."
+      rows="1"
+      onkeydown="handleKey(event)"
+      oninput="autoResize(this)"
+    ></textarea>
+    <button class="btn-clear" onclick="clearChat()">🗑 Clear</button>
+    <button class="btn-send" id="sendBtn" onclick="sendMessage()">➤</button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <span>⚡ GPT-4o</span>
+    <span>📚 RAG enabled</span>
+    <span id="msgCount">💬 0 messages</span>
+  </div>
+
+</div>
+
+<script>
+  // ── Session ID — unique per browser tab ────────────────────────────────────
+  const sessionId = "session_" + Math.random().toString(36).substr(2, 9);
+  const API_URL   = "http://localhost:8000";
+  let messageCount = 0;
+
+  // ── Send message on Enter (Shift+Enter = new line) ─────────────────────────
+  function handleKey(e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }
+
+  // ── Auto-resize textarea as user types ─────────────────────────────────────
+  function autoResize(el) {
+    el.style.height = "auto";
+    el.style.height = Math.min(el.scrollHeight, 100) + "px";
+  }
+
+  // ── Click a suggestion chip ────────────────────────────────────────────────
+  function sendSuggestion(el) {
+    const text = el.textContent.replace(/^[^\s]+\s/, ""); // strip emoji
+    document.getElementById("userInput").value = text;
+    sendMessage();
+  }
+
+  // ── Main send function ─────────────────────────────────────────────────────
+  async function sendMessage() {
+    const input = document.getElementById("userInput");
+    const message = input.value.trim();
+    if (!message) return;
+
+    // Hide welcome message on first send
+    const welcome = document.getElementById("welcomeMsg");
+    if (welcome) welcome.remove();
+
+    // Show user bubble
+    addBubble("user", message);
+    input.value = "";
+    input.style.height = "auto";
+
+    // Disable send button + show typing indicator
+    const sendBtn = document.getElementById("sendBtn");
+    sendBtn.disabled = true;
+    const typingId = addTypingIndicator();
+
+    try {
+      // Call the backend API
+      const response = await fetch(`${API_URL}/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session_id: sessionId, message: message }),
+      });
+
+      const data = await response.json();
+
+      // Remove typing indicator, show bot reply
+      removeTypingIndicator(typingId);
+      addBubble("bot", data.answer);
+
+      messageCount = data.message_count;
+      document.getElementById("msgCount").textContent = `💬 ${messageCount} messages`;
+
+    } catch (err) {
+      removeTypingIndicator(typingId);
+      addBubble("bot", "⚠️ Sorry, I couldn't connect to the server. Make sure the backend is running:\n\nuvicorn server:app --reload --port 8000");
+    }
+
+    sendBtn.disabled = false;
+    input.focus();
+  }
+
+  // ── Add a chat bubble ──────────────────────────────────────────────────────
+  function addBubble(role, text) {
+    const window = document.getElementById("chatWindow");
+    const now    = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+    const row = document.createElement("div");
+    row.className = `message-row ${role}`;
+
+    const avatar = document.createElement("div");
+    avatar.className = `avatar ${role}`;
+    avatar.textContent = role === "bot" ? "🤖" : "👤";
+
+    const bubble = document.createElement("div");
+    bubble.className = `bubble ${role}`;
+
+    // Convert newlines to <br> for display
+    bubble.innerHTML = text.replace(/\n/g, "<br>");
+
+    const time = document.createElement("div");
+    time.className = "time";
+    time.textContent = now;
+    bubble.appendChild(time);
+
+    row.appendChild(avatar);
+    row.appendChild(bubble);
+    window.appendChild(row);
+
+    // Scroll to bottom
+    window.scrollTop = window.scrollHeight;
+  }
+
+  // ── Typing indicator ───────────────────────────────────────────────────────
+  function addTypingIndicator() {
+    const window = document.getElementById("chatWindow");
+    const id = "typing_" + Date.now();
+
+    const row = document.createElement("div");
+    row.className = "message-row bot";
+    row.id = id;
+
+    const avatar = document.createElement("div");
+    avatar.className = "avatar bot";
+    avatar.textContent = "🤖";
+
+    const bubble = document.createElement("div");
+    bubble.className = "bubble bot";
+    bubble.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+
+    row.appendChild(avatar);
+    row.appendChild(bubble);
+    window.appendChild(row);
+    window.scrollTop = window.scrollHeight;
+    return id;
+  }
+
+  function removeTypingIndicator(id) {
+    const el = document.getElementById(id);
+    if (el) el.remove();
+  }
+
+  // ── Clear conversation ─────────────────────────────────────────────────────
+  async function clearChat() {
+    await fetch(`${API_URL}/clear/${sessionId}`, { method: "POST" });
+
+    const window = document.getElementById("chatWindow");
+    window.innerHTML = `
+      <div class="welcome" id="welcomeMsg">
+        <div class="welcome-icon">👋</div>
+        <h2>Conversation cleared!</h2>
+        <p>Ask me a new question to get started.</p>
+      </div>`;
+
+    messageCount = 0;
+    document.getElementById("msgCount").textContent = "💬 0 messages";
+  }
+</script>
+
+</body>
+</html>

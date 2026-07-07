@@ -1,0 +1,49 @@
+COMPANY: TechStore — Customer Support Knowledge Base
+
+=== ORDERS & SHIPPING ===
+Q: How long does shipping take?
+A: Standard shipping takes 5-7 business days. Express shipping takes 2 business days for $12.99. Orders placed before 2 PM are shipped the same day.
+
+Q: How do I track my order?
+A: After your order ships, you will receive a tracking email. You can also visit our website and go to "My Orders" to track in real time.
+
+Q: Can I change or cancel my order?
+A: You can cancel or change your order within 1 hour of placing it. After that, the order is processed and cannot be changed.
+
+=== RETURNS & REFUNDS ===
+Q: What is the return policy?
+A: We offer a 30-day return policy. Items must be unused and in original packaging. To start a return, email returns@techstore.com with your order number.
+
+Q: How long do refunds take?
+A: Refunds are processed in 5-7 business days after we receive your item. Credit card refunds may take an extra 3-5 days depending on your bank.
+
+Q: What items cannot be returned?
+A: Downloaded software, opened headphones, and personalised items cannot be returned unless they are defective.
+
+=== PAYMENTS ===
+Q: What payment methods do you accept?
+A: We accept Visa, MasterCard, American Express, PayPal, and Apple Pay. All payments are secured with 256-bit SSL encryption.
+
+Q: My payment was declined. What should I do?
+A: Please check that your billing address matches your card and that your card details are correct. If the problem persists, contact your bank or our support team.
+
+=== PRODUCTS & WARRANTY ===
+Q: What warranty do products come with?
+A: All products come with a 1-year manufacturer warranty covering defects. Accidental damage is not covered. Extended warranty plans are available at checkout.
+
+Q: How do I claim a warranty?
+A: Email warranty@techstore.com with your order number, a description of the issue, and photos if possible. Our team responds within 24 hours.
+
+=== ACCOUNT & PASSWORD ===
+Q: How do I reset my password?
+A: Click "Forgot Password" on the login page, enter your email, and we will send a reset link within 5 minutes. Check your spam folder if it does not arrive.
+
+Q: How do I delete my account?
+A: Email privacy@techstore.com with subject "Delete My Account". Your account will be deleted within 30 days.
+
+=== CONTACT ===
+Q: How can I contact support?
+A: Email: support@techstore.com | Phone: 1-800-TECH-HELP (Mon-Fri 9AM-6PM) | Live Chat on our website (Mon-Fri 9AM-9PM)
+
+Q: How do I escalate an issue?
+A: If your issue is not resolved in 48 hours, reply to your support email with "ESCALATE" in the subject. A senior agent will take over.
